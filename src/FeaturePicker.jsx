@@ -8,11 +8,16 @@ class FeaturePicker extends Component {
   constructor(props) {
     super(props);
 
+    let expandedCategories = [];
+
     // ideally, parsing of data would be done in the parent, rather than here (since it's a presenter, really)
     let data = json.data;
     data.featureCategories.sort((a, b) => a.sortOrder > b.sortOrder);
     data.sortedFeatures = {};
+
+    // since each feature has one category and the data is static
     for (let category of data.featureCategories) {
+      expandedCategories.push(false);
       data.sortedFeatures[category.sid.id] = data.features.filter((feature) => {
         return feature.categorySid.id === category.sid.id;
       });
@@ -20,31 +25,45 @@ class FeaturePicker extends Component {
 
     this.state = {
       data: data,
-      search: 'mud'
+      search: 'mud',
+      expandedCategories: expandedCategories
     };
   }
 
   static defaultProps = {};
 
-  shouldComponentUpdate = (nextProps, nextState) => {
-    return this.state.search !== nextState.search;
-  }
-
-  click = (evt) => {
-    if (this.props.disabled) return;
-
-    this.props.onClick(evt);
-  }
-
-  onChange = (evt) => {
+  onSearchChange = (evt) => {
+    let value = evt.target.value;
+    let expandedCategories = [];
+    
+    // ideally this would be done on a per-category basis depending on how many results are found for each
+    //   for a prototype, this works well enough
+    for (let expanded of this.state.expandedCategories) {
+      if (value.length > 0) {
+        expandedCategories.push(true);
+      } else {
+        expandedCategories.push(false);
+      }
+    }
+    
     this.setState({
-      search: evt.target.value
+      search: value,
+      expandedCategories: expandedCategories
     })
+  }
+
+  categoryExpansion = (categoryIndex, categoryState) => {
+    let expandedCategories = this.state.expandedCategories;
+    expandedCategories[categoryIndex] = categoryState;
+    this.setState({
+      expandedCategories: expandedCategories
+    });
   }
 
   highlightText = (text, regexp) => {
     let highlightSplit = text.split(regexp);
     let highlighted = [];
+
     highlightSplit.map((text, t) => {
       highlighted.push(text);
       if (t < highlightSplit.length - 1) {
@@ -90,14 +109,14 @@ class FeaturePicker extends Component {
     return features;
   }
 
-  renderCategory = (category) => {
+  renderCategory = (category, categoryIndex) => {
     let features = this.renderFeatures(category.sid.id);
 
     if (features.length) {
       return (
         <div className="category-section">
-          <span className="category-name">[+] {category.name} {features.length}</span>
-          <div className="category-features">{features}</div>
+          <span className="category-name" onClick={() => this.categoryExpansion(categoryIndex, !this.state.expandedCategories[categoryIndex])}>[+] {category.name} {features.length}</span>
+          { this.state.expandedCategories[categoryIndex] ? <div className="category-features">{features}</div> : null }
         </div>
       );
     }
@@ -108,7 +127,10 @@ class FeaturePicker extends Component {
   renderCategories = () => {
     return (<div>
       {this.state.data.featureCategories.map((category, c) => {
-        return (<div key={c}>{this.renderCategory(category)}</div>)
+        return (
+          <div key={c}>
+            {this.renderCategory(category, c)}
+          </div>)
       })}
     </div>);
   }
@@ -121,7 +143,7 @@ class FeaturePicker extends Component {
       <input 
         type="text"
         value={this.state.search}
-        onChange={this.onChange}
+        onChange={this.onSearchChange}
       />
 
       <h3>Feature Categories</h3>
