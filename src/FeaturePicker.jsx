@@ -17,7 +17,8 @@ class FeaturePicker extends Component {
 
     // since each feature has one category and the data is static
     for (let category of data.featureCategories) {
-      expandedCategories.push(false);
+      // this would normally default to false, but true here for the sake of this demo
+      expandedCategories.push(true);
       data.sortedFeatures[category.sid.id] = data.features.filter((feature) => {
         return feature.categorySid.id === category.sid.id;
       });
