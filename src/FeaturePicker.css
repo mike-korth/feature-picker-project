@@ -1,0 +1,43 @@
+body {
+  background: #f1f1f1;
+}
+
+.feature-picker {
+  padding: 60px 30px;
+  box-sizing: border-box;
+}
+
+.category-name {
+  border-bottom: 1px solid black;
+  display: block;
+}
+
+.category-section {
+  margin-bottom: 20px;
+}
+
+.category-features {
+  padding: 3px 12px;
+}
+
+.feature-section {
+  margin: 3px 0;
+  padding: 9px;
+  width: 100%;
+  background: white;
+  box-sizing: border-box;
+  box-shadow: 1px 1px 6px #ddd;
+  border-radius: 2px;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  font-size: 18px;
+}
+
+small {
+  font-size: 8px;
+  font-style: italic;
+}
